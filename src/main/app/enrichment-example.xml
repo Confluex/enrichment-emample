@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" 
+    xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+        http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <context:property-placeholder location="app.properties" />
+
+    <flow name="address-enricher-flow">
+        <enricher doc:name="Message Enricher">
+            <flow-ref name="usps-city-state-lookup" doc:name="usps-city-state-lookup"/>
+            <enrich source="#[xpath3('/CityStateLookupResponse/ZipCode/City')]" target="#[variable:city]"/>
+            <enrich source="#[xpath3('/CityStateLookupResponse/ZipCode/State')]" target="#[variable:state]"/>
+        </enricher>
+        <expression-component doc:name="Expression"><![CDATA[#[payload.state=flowVars.state]]]></expression-component>
+        <expression-component doc:name="Expression"><![CDATA[#[payload.city=flowVars.city]]]></expression-component>
+    </flow>
+
+    <flow name="multiple-address-enricher-flow">
+        <set-variable variableName="original-payload" value="#[payload]" doc:name="Variable"/>
+        <foreach collection="#[payload.addresses]" doc:name="For Each">
+            <flow-ref name="usps-city-state-lookup" doc:name="usps-city-state-lookup"/>
+            <expression-component doc:name="Expression"><![CDATA[#[flowVars.'original-payload'.addresses[counter-1].state=xpath3('/CityStateLookupResponse/ZipCode/State')]]]></expression-component>
+            <expression-component doc:name="Expression"><![CDATA[#[flowVars.'original-payload'.addresses[counter-1].city=xpath3('/CityStateLookupResponse/ZipCode/City')]]]></expression-component>
+        </foreach>
+        <set-payload value="#[flowVars.'original-payload']" doc:name="Set Payload"/>
+    </flow>
+    
+    <flow name="dataweave-multiple-address-enricher-flow">
+        <dw:transform-message doc:name="Transform Message">
+            <dw:set-payload resource="classpath:address-enrichment.dwl"/>
+        </dw:transform-message>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object"/>
+    </flow>
+</mule>
+

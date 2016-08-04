@@ -1,0 +1,10 @@
+{
+	"addresses": [{
+		"name": "Ralph",
+		"zip": "02861"
+	}, 
+	{
+		"name": "George",
+		"zip": "42223"
+	}]
+}

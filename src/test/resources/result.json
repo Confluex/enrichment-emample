@@ -1,0 +1,16 @@
+{
+  "addresses": [
+    {
+      "name": "Ralph",
+      "city": "PAWTUCKET",
+      "state": "RI",
+      "zip": "02861"
+    },
+    {
+      "name": "George",
+      "city": "FORT CAMPBELL",
+      "state": "KY",
+      "zip": "42223"
+    }
+  ]
+}

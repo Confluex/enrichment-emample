@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" version="EE-3.7.3"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+
+    <http:request-config name="HTTP_USPS_Request_Configuration" host="production.shippingapis.com" port="80" 
+        doc:name="HTTP Request Configuration" />
+
+    <flow name="usps-city-state-lookup">
+        <http:request config-ref="HTTP_USPS_Request_Configuration" path="/ShippingAPI.dll" method="GET" doc:name="USPS-CityStateLookup">
+            <http:request-builder>
+                <http:query-param paramName="API" value="CityStateLookup"/>
+                <http:query-param paramName="XML" value="&lt;CityStateLookupRequest USERID=&quot;${usps.userid}&quot; PASSWORD=&quot;${usps.password}&quot;&gt;&lt;ZipCode ID=&quot;0&quot;&gt;&lt;Zip5&gt;#[payload.zip]&lt;/Zip5&gt;&lt;/ZipCode&gt;&lt;/CityStateLookupRequest&gt;"/>
+            </http:request-builder>
+        </http:request>
+        <logger message="*: #[message.payloadAs(java.lang.String)]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
