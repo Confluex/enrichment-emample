@@ -19,6 +19,5 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
                 <http:query-param paramName="XML" value="&lt;CityStateLookupRequest USERID=&quot;${usps.userid}&quot; PASSWORD=&quot;${usps.password}&quot;&gt;&lt;ZipCode ID=&quot;0&quot;&gt;&lt;Zip5&gt;#[payload.zip]&lt;/Zip5&gt;&lt;/ZipCode&gt;&lt;/CityStateLookupRequest&gt;"/>
             </http:request-builder>
         </http:request>
-        <logger message="*: #[message]" level="INFO" doc:name="Logger"/>
     </flow>
 </mule>

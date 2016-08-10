@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mule.DefaultMuleMessage;
 import org.mule.api.MuleEvent;
 import org.mule.api.MuleMessage;
 import org.mule.api.transport.PropertyScope;
@@ -119,8 +118,8 @@ public class EnrichmentExampleTestSuite extends FunctionalMunitSuite {
 	}
 
 	private void setupMock() {
-		MessageProcessorMocker mock = whenMessageProcessor("flow").ofNamespace("mule")
-				.withAttributes(Attribute.attribute("name").withValue("usps-city-state-lookup"));
+		MessageProcessorMocker mock = whenMessageProcessor("request").ofNamespace("http")
+				.withAttributes(Attribute.attribute("doc:name").withValue("USPS-CityStateLookup"));
 		mock.thenApply(new MockTransformer());
 	}
 
@@ -131,12 +130,11 @@ public class EnrichmentExampleTestSuite extends FunctionalMunitSuite {
 		@Override
 		public MuleMessage transform(MuleMessage original) {
 			String key = getPayloadField(original.getPayload(), "zip");
-			String payload = key == "02861" ? zip02861 : key == "42223" ? zip42223 : "Error: unknown zip code";
+			String payload = (key == "02861") ? zip02861 : key == "42223" ? zip42223 : "Error: unknown zip code";
 			MuleMessage result = muleMessageWithPayload(payload);
 			result.setProperty("content-length", payload.length(), PropertyScope.INBOUND);
 			result.setProperty("content-type", "text/xml", PropertyScope.INBOUND);
 
-			original = result;
 			return result;
 		}
 	}
