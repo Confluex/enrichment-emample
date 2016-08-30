@@ -1,5 +1,5 @@
 %dw 1.0
-%output application/json skipNullOn="everywhere"
+%output application/java
 ---
 {
 	addresses: payload.addresses map (( record) -> using (lookup=lookup("usps-city-state-lookup",{zip:record.zip}).CityStateLookupResponse.ZipCode) {
